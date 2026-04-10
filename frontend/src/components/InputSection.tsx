@@ -10,6 +10,8 @@ interface InputSectionProps {
   triggerTranslation: (text: string) => void;
   simplifyText: boolean;
   isTranslating: boolean;
+  onCopy?: () => void;
+  onOpenPhraseBook?: () => void;
 }
 
 // Common ActionButton component for reuse
@@ -55,8 +57,10 @@ const InputSection: React.FC<InputSectionProps> = ({
   triggerTranslation,
   simplifyText,
   isTranslating,
+  onCopy,
+  onOpenPhraseBook,
 }) => (
-  <div className="xl:col-span-5 h-full">
+  <div className="card card-input xl:col-span-5 h-full">
     <div className="card h-full flex flex-col bg-white dark:bg-theme-secondary shadow-sm sm:shadow-xl hover:shadow-md sm:hover:shadow-2xl transition-all duration-300 border border-theme-input sm:border-0 rounded-2xl sm:rounded-xl p-2 sm:p-6">
       <div className="pb-3 sm:pb-6 border-b border-theme-primary">
         <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-3">
@@ -94,14 +98,39 @@ const InputSection: React.FC<InputSectionProps> = ({
               aria-label="Input text for translation"
             />
             <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-theme-muted">
+              {onCopy && (
+                <button
+                  onClick={onCopy}
+                  className="p-1 rounded hover:bg-theme-secondary transition-colors"
+                  title="Copy text"
+                  aria-label="Copy input text"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </button>
+              )}
               <span>{inputText.length} characters</span>
               <div className="w-1 h-1 bg-secondary-300 rounded-full"></div>
-              <span>Press Enter to translate</span>
+              <span>Ctrl+Enter to translate</span>
             </div>
           </div>
         )}
-        {/* Enhanced Action Buttons */}
-        <div className="flex flex-row gap-2 sm:gap-4 mt-3 sm:mt-6">
+        {/* Quick Phrases & Action Buttons */}
+        {onOpenPhraseBook && (
+          <div className="mt-3 sm:mt-4">
+            <button
+              onClick={onOpenPhraseBook}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-dashed border-theme-primary hover:border-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all duration-200 text-sm text-theme-secondary hover:text-primary-600"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              Quick Phrases
+            </button>
+          </div>
+        )}
+        <div className="flex flex-row gap-2 sm:gap-4 mt-2 sm:mt-4">
           <ActionButton
             onClick={handleRecordClick}
             disabled={isRecording || isTranscribing}

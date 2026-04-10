@@ -8,7 +8,7 @@ interface AnimationSectionProps {
 }
 
 const AnimationSection: React.FC<AnimationSectionProps> = ({ poseFile, isGeneratingAnimation }) => (
-  <div className="xl:col-span-4 h-full" role="region" aria-label="Sign language animation">
+  <div className="card card-animation xl:col-span-4 h-full" role="region" aria-label="Sign language animation">
     <div className="card h-full flex flex-col shadow-md sm:shadow-xl hover:shadow-lg sm:hover:shadow-2xl transition-all duration-300 border border-theme-input sm:border-0 rounded-2xl sm:rounded-xl p-2 sm:p-6">
       <div className="pb-3 sm:pb-6 border-b border-theme-primary">
         <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-3">
@@ -52,14 +52,15 @@ const AnimationSection: React.FC<AnimationSectionProps> = ({ poseFile, isGenerat
               <PoseViewer poseFile={poseFile} onAnimationComplete={() => {}} isTranslating={isGeneratingAnimation} />
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-full w-full py-6 sm:py-0 text-center text-theme-muted">
-              <div className="w-10 h-10 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-1 sm:mb-4" style={{ background: 'var(--bg-secondary)' }}>
-                <svg className="w-5 h-5 sm:w-10 sm:h-10 text-secondary-400 dark:text-secondary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            <div className="flex flex-col items-center justify-center h-full py-12">
+              <div className="w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <p className="text-xs sm:text-sm font-medium mb-0.5 sm:mb-1">No animation available</p>
-              <p className="text-[9px] sm:text-xs">Translate text to see animation</p>
+              <p className="text-sm font-medium text-theme-secondary mb-1">Animation will play here</p>
+              <p className="text-xs text-theme-muted">Watch 3D skeleton animations of each sign</p>
             </div>
           )}
         </div>
