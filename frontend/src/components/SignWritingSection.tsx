@@ -76,47 +76,47 @@ const SignWritingSection: React.FC<SignWritingSectionProps> = ({ signWriting, is
                 <p className="text-xs text-theme-muted">Translate text to see SignWriting notation</p>
               </div>
             ) : (
-            <div className="h-full max-h-[350px] overflow-y-auto px-2">
-              <div className={signWriting.length === 0 ? 'flex justify-center items-center h-full w-full' : ''}>
+            <>
+              <div className="h-full max-h-[350px] overflow-y-auto px-2">
                 <SignWritingDisplay
-                  fswTokens={signWriting.length === 0 ? [] : signWriting}
+                  fswTokens={signWriting}
                   direction="col"
                   className="w-full min-w-0 flex-col overflow-y-auto h-full"
                   signSize={24}
                 />
               </div>
-            </div>
-            <div className="mt-4 px-2">
-              <div className="flex items-center justify-center gap-3">
-                {onToggleFavorite && (
-                  <button
-                    onClick={onToggleFavorite}
-                    className="flex items-center gap-1 text-xs text-theme-muted hover:text-danger-500 transition-colors"
-                    aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-                  >
-                    <svg className={`w-4 h-4 ${isFavorited ? 'text-danger-500 fill-current' : ''}`} fill={isFavorited ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                    {isFavorited ? 'Saved' : 'Save'}
-                  </button>
-                )}
-                {onOpenLearningMode && (
-                  <button
-                    onClick={onOpenLearningMode}
-                    className="flex items-center gap-1 text-xs text-theme-muted hover:text-primary-500 transition-colors"
-                    aria-label="Open learning mode"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
-                    Learn
-                  </button>
-                )}
-                <p className="text-xs text-theme-muted">
-                  Hover for details
-                </p>
+              <div className="mt-4 px-2">
+                <div className="flex items-center justify-center gap-3">
+                  {onToggleFavorite && (
+                    <button
+                      onClick={onToggleFavorite}
+                      className="flex items-center gap-1 text-xs text-theme-muted hover:text-danger-500 transition-colors"
+                      aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+                    >
+                      <svg className={`w-4 h-4 ${isFavorited ? 'text-danger-500 fill-current' : ''}`} fill={isFavorited ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                      {isFavorited ? 'Saved' : 'Save'}
+                    </button>
+                  )}
+                  {onOpenLearningMode && (
+                    <button
+                      onClick={onOpenLearningMode}
+                      className="flex items-center gap-1 text-xs text-theme-muted hover:text-teal-500 transition-colors"
+                      aria-label="Open learning mode"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                      Learn
+                    </button>
+                  )}
+                  <p className="text-xs text-theme-muted">
+                    Hover for details
+                  </p>
+                </div>
               </div>
-            </div>
+            </>
             )}
           </div>
         )}
