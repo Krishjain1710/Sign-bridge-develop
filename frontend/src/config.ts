@@ -80,6 +80,7 @@ export const validateConfig = (): void => {
 
 // API endpoints
 export const API_ENDPOINTS = {
+  HEALTH: `${config.BACKEND_URL}/health`,
   TRANSCRIBE: `${config.BACKEND_URL}/transcribe`,
   SIMPLIFY_TEXT: `${config.BACKEND_URL}/simplify_text`,
   TRANSLATE_SIGNWRITING: `${config.BACKEND_URL}/translate_signwriting`,

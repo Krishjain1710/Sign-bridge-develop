@@ -7,6 +7,7 @@ import { API_ENDPOINTS } from '../config';
 
 export interface TranscribeResponse {
   text: string;
+  detected_language?: string;
 }
 
 export interface SimplifyTextResponse {
@@ -18,10 +19,13 @@ export interface TranslateSignWritingResponse {
 }
 
 export interface GeneratePoseResponse {
-  format: string;
-  frames: number;
-  joints_per_frame: number;
-  pose: number[][][]; // [frame][joint][xyz]
+  pose_data: string;
+  data_format: string;
+}
+
+export interface HealthResponse {
+  status: 'ready' | 'loading';
+  models: { whisper: boolean; signwriting: boolean };
 }
 
 /* =========================
@@ -29,10 +33,19 @@ export interface GeneratePoseResponse {
 ========================= */
 
 const ApiService = {
+  /* ---------- Health ---------- */
+  async checkHealth(): Promise<HealthResponse> {
+    const response = await axios.get<HealthResponse>(API_ENDPOINTS.HEALTH);
+    return response.data;
+  },
+
   /* ---------- Transcribe ---------- */
-  async transcribe(audioBlob: Blob): Promise<TranscribeResponse> {
+  async transcribe(audioBlob: Blob, language?: string): Promise<TranscribeResponse> {
     const formData = new FormData();
     formData.append('audio', audioBlob, 'recording.webm');
+    if (language) {
+      formData.append('language', language);
+    }
 
     const response = await axios.post<TranscribeResponse>(
       API_ENDPOINTS.TRANSCRIBE,
