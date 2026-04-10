@@ -6,6 +6,7 @@ import { useSettings } from '../hooks/useSettings';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import ErrorBoundary from '../components/ErrorBoundary';
 import Header from '../components/Header';
+import Toolbar from '../components/Toolbar';
 import InputSection from '../components/InputSection';
 import SignWritingSection from '../components/SignWritingSection';
 import AnimationSection from '../components/AnimationSection';
@@ -16,6 +17,8 @@ import SimplifyChoiceModal from '../components/SimplifyChoiceModal';
 import AudioRecorder from '../components/AudioRecorder';
 import MetricsOverlay from '../components/MetricsOverlay';
 import ToastContainer from '../components/Toast';
+import Onboarding from '../components/Onboarding';
+import { useOnboarding } from '../hooks/useOnboarding';
 import '../index.css';
 
 function App() {
@@ -23,6 +26,7 @@ function App() {
   const { activePanel, closePanel } = usePanel();
   const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites();
   const { settings } = useSettings();
+  const { isComplete: onboardingComplete, complete: completeOnboarding } = useOnboarding();
 
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSource, setRecordingSource] = useState<'mic' | 'system'>('mic');
@@ -78,6 +82,7 @@ function App() {
   return (
     <div className="min-h-screen transition-all duration-300">
       <Header />
+      <Toolbar />
       <PipelineProgress />
 
       <main id="main-content" className="max-w-7xl mx-auto px-6 py-8">
@@ -145,6 +150,7 @@ function App() {
       <PanelRenderer />
       <MetricsOverlay metrics={translation.metrics} visible={settings.showMetrics} />
       <ToastContainer />
+      {!onboardingComplete && <Onboarding onComplete={completeOnboarding} />}
     </div>
   );
 }
