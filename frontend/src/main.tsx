@@ -1,17 +1,22 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './pages/App.tsx'
-import { ThemeProvider } from './contexts/ThemeContext'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './pages/App';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { ToastProvider } from './contexts/ToastContext';
+import { TranslationProvider } from './contexts/TranslationContext';
+import { PanelProvider } from './contexts/PanelContext';
+import './index.css';
 
-import { defineCustomElements } from '@sutton-signwriting/sgnw-components/loader';
-
-defineCustomElements(window);
-
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
     <ThemeProvider>
-      <App />
+      <ToastProvider>
+        <TranslationProvider>
+          <PanelProvider>
+            <App />
+          </PanelProvider>
+        </TranslationProvider>
+      </ToastProvider>
     </ThemeProvider>
-  </StrictMode>,
-)
+  </React.StrictMode>,
+);
