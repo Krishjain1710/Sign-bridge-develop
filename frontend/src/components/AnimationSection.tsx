@@ -1,5 +1,6 @@
 import React from 'react';
 import PoseViewer from './PoseViewer';
+import ExportControls from './ExportControls';
 
 interface AnimationSectionProps {
   poseFile: Blob | null;
@@ -7,7 +8,7 @@ interface AnimationSectionProps {
 }
 
 const AnimationSection: React.FC<AnimationSectionProps> = ({ poseFile, isGeneratingAnimation }) => (
-  <div className="xl:col-span-4 h-full">
+  <div className="xl:col-span-4 h-full" role="region" aria-label="Sign language animation">
     <div className="card h-full flex flex-col shadow-md sm:shadow-xl hover:shadow-lg sm:hover:shadow-2xl transition-all duration-300 border border-theme-input sm:border-0 rounded-2xl sm:rounded-xl p-2 sm:p-6">
       <div className="pb-3 sm:pb-6 border-b border-theme-primary">
         <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-3">
@@ -63,8 +64,11 @@ const AnimationSection: React.FC<AnimationSectionProps> = ({ poseFile, isGenerat
           )}
         </div>
       </div>
+      <div className="pt-3 sm:pt-4 border-t border-theme-primary mt-3 sm:mt-4 flex justify-end">
+        <ExportControls blob={poseFile} fileName="vocasign-animation.pose" label="Animation" />
+      </div>
     </div>
   </div>
 );
 
-export default AnimationSection; 
+export default React.memo(AnimationSection); 
