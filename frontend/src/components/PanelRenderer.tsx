@@ -9,6 +9,7 @@ import FavoritesPanel from './FavoritesPanel';
 import SettingsPanel from './SettingsPanel';
 import PhraseBook from './PhraseBook';
 import LearningMode from './LearningMode';
+import AccessibilityHelp from './AccessibilityHelp';
 
 const PanelRenderer: React.FC = () => {
   const { activePanel, closePanel } = usePanel();
@@ -79,6 +80,9 @@ const PanelRenderer: React.FC = () => {
           onClose={closePanel}
         />
       );
+
+    case 'accessibility':
+      return <AccessibilityHelp onClose={closePanel} />;
 
     default:
       return null;
