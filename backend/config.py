@@ -5,6 +5,13 @@ from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
+# Validation constants
+MAX_AUDIO_SIZE_MB = 25
+MAX_TEXT_LENGTH = 1000
+MAX_FSW_LENGTH = 500
+ALLOWED_AUDIO_TYPES = {"audio/webm", "audio/wav", "audio/ogg", "audio/mpeg", "audio/mp3"}
+
+
 class Config:
     """Configuration class for the SignBridge backend"""
 
@@ -51,6 +58,12 @@ class Config:
     # Logging
     # ======================
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
+
+    # Timeouts (seconds)
+    TRANSCRIBE_TIMEOUT: int = int(os.getenv("TRANSCRIBE_TIMEOUT", 30))
+    SIMPLIFY_TIMEOUT: int = int(os.getenv("SIMPLIFY_TIMEOUT", 10))
+    TRANSLATE_TIMEOUT: int = int(os.getenv("TRANSLATE_TIMEOUT", 15))
+    POSE_TIMEOUT: int = int(os.getenv("POSE_TIMEOUT", 10))
 
     # ======================
     # Validation

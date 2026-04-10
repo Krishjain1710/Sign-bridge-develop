@@ -1,33 +1,97 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Form
+from typing import Optional
 import whisper
 import tempfile
 import os
+import logging
+
+from config import MAX_AUDIO_SIZE_MB
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
-# Load model ONCE (fast)
+# Load model ONCE at module level
 model = whisper.load_model("base", device="cpu")
 
-@router.post("/transcribe")
-async def transcribe(audio: UploadFile = File(...)):
-    temp_path = None
-    try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as f:
-            f.write(await audio.read())
-            temp_path = f.name
 
-        result = model.transcribe(
-            temp_path,
-            task="translate",   # force English output
-            language="en",
-            fp16=False
+@router.post("/transcribe")
+async def transcribe(
+    audio: UploadFile = File(...),
+    language: Optional[str] = Form(None),
+):
+    content_type = audio.content_type or ""
+    if content_type and content_type not in {
+        "audio/webm", "audio/wav", "audio/ogg", "audio/mpeg",
+        "audio/mp3", "application/octet-stream",
+    }:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": f"Unsupported audio type: {content_type}",
+                "code": "INVALID_AUDIO_TYPE",
+                "stage": "transcribe",
+            },
         )
 
-        return {"text": result["text"].strip()}
+    temp_path = None
+    try:
+        audio_bytes = await audio.read()
 
+        size_mb = len(audio_bytes) / (1024 * 1024)
+        if size_mb > MAX_AUDIO_SIZE_MB:
+            raise HTTPException(
+                status_code=422,
+                detail={
+                    "error": f"Audio file too large ({size_mb:.1f}MB). Max: {MAX_AUDIO_SIZE_MB}MB",
+                    "code": "AUDIO_TOO_LARGE",
+                    "stage": "transcribe",
+                },
+            )
+
+        if len(audio_bytes) == 0:
+            raise HTTPException(
+                status_code=422,
+                detail={
+                    "error": "Audio file is empty",
+                    "code": "EMPTY_AUDIO",
+                    "stage": "transcribe",
+                },
+            )
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as f:
+            f.write(audio_bytes)
+            temp_path = f.name
+
+        transcribe_opts = {
+            "fp16": False,
+            "task": "translate",
+        }
+
+        if language and language != "auto":
+            transcribe_opts["language"] = language
+        else:
+            transcribe_opts["language"] = None
+
+        result = model.transcribe(temp_path, **transcribe_opts)
+        detected_language = result.get("language", "en")
+
+        return {
+            "text": result["text"].strip(),
+            "detected_language": detected_language,
+        }
+
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
+        logger.error(f"Transcription failed: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "error": "Transcription failed. Please try again.",
+                "code": "TRANSCRIBE_ERROR",
+                "stage": "transcribe",
+            },
+        )
     finally:
         if temp_path and os.path.exists(temp_path):
             os.remove(temp_path)
