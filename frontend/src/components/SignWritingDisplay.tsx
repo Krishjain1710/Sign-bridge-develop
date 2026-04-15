@@ -8,43 +8,48 @@ interface SignWritingDisplayProps {
   signSize?: number;
 }
 
-const SignWritingDisplay: React.FC<SignWritingDisplayProps> = ({ fswTokens, direction = 'col', className, signSize = 48 }) => {
+const SignWritingDisplay: React.FC<SignWritingDisplayProps> = ({ fswTokens, direction = 'col', className = '', signSize = 48 }) => {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [normalizedTokens, setNormalizedTokens] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const loadFonts = async () => {
+    let mounted = true;
+    const loadFontsAndComponents = async () => {
       try {
         setLoading(true);
-        await SignWritingService.loadFonts();
-        setFontsLoaded(true);
+        const { defineCustomElements } = await import('@sutton-signwriting/sgnw-components/loader');
+        await Promise.all([
+          SignWritingService.loadFonts(),
+          defineCustomElements(),
+        ]);
+        if (mounted) setFontsLoaded(true);
       } catch (error) {
-        console.error('Failed to load SignWriting fonts:', error);
+        console.error('Failed to load SignWriting fonts/components:', error);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
-    loadFonts();
+    loadFontsAndComponents();
+    return () => { mounted = false; };
   }, []);
 
   useEffect(() => {
+    let mounted = true;
     const normalizeTokens = async () => {
       if (!fontsLoaded) return;
-      
+
       const results = [];
       for (const token of fswTokens) {
         const normalized = await SignWritingService.normalizeFSW(token);
-        if (normalized) {
-          results.push(normalized);
-        } else {
-          results.push(token);
-        }
+        if (!mounted) return;
+        results.push(normalized || token);
       }
-      setNormalizedTokens(results);
+      if (mounted) setNormalizedTokens(results);
     };
     normalizeTokens();
+    return () => { mounted = false; };
   }, [fswTokens, fontsLoaded]);
 
   // Save as Image handler
@@ -60,8 +65,7 @@ const SignWritingDisplay: React.FC<SignWritingDisplayProps> = ({ fswTokens, dire
     let totalHeight = 0;
     const svgData: {svg: SVGSVGElement, width: number, height: number}[] = [];
     for (const el of fswSigns) {
-      // @ts-ignore
-      const shadow = el.shadowRoot;
+      const shadow = (el as HTMLElement).shadowRoot;
       if (!shadow) continue;
       const svg = shadow.querySelector('svg');
       if (!svg) continue;
@@ -76,9 +80,9 @@ const SignWritingDisplay: React.FC<SignWritingDisplayProps> = ({ fswTokens, dire
     let y = 0;
     const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${maxWidth}" height="${totalHeight}" viewBox="0 0 ${maxWidth} ${totalHeight}">
 ` +
-      svgData.map(({svg, width, height}) => {
+      svgData.map(({svg, height}) => {
         const svgStr = svg.outerHTML
-          .replace('<svg ', `<g transform=\"translate(0,${y})\" `)
+          .replace('<svg ', `<g transform="translate(0,${y})" `)
           .replace('</svg>', '</g>');
         y += height;
         return svgStr;
@@ -154,7 +158,7 @@ const SignWritingDisplay: React.FC<SignWritingDisplayProps> = ({ fswTokens, dire
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className={`h-full flex flex-col ${className}`}>
       {/* Save as Image Button */}
       <div className="flex justify-end mb-2">
         <button
@@ -178,7 +182,12 @@ const SignWritingDisplay: React.FC<SignWritingDisplayProps> = ({ fswTokens, dire
           }}
           ref={containerRef}
         >
-          {normalizedTokens.map((token, index) => (
+          {normalizedTokens.map((token, index) => {
+            // Validate FSW token to prevent XSS - only allow valid SignWriting characters
+            const isValidFSW = /^[MBLRSW0-9a-fxp.+-]+$/i.test(token);
+            if (!isValidFSW) return null;
+
+            return (
             <div
               key={index}
               className="group relative"
@@ -186,9 +195,18 @@ const SignWritingDisplay: React.FC<SignWritingDisplayProps> = ({ fswTokens, dire
                 animation: `fadeIn 0.3s ease-out ${index * 0.1}s both`
               }}
             >
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: `<fsw-sign sign="${token}" style="direction: ltr; display: block; user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; -webkit-touch-callout: none; color: var(--text-primary); fill: var(--text-primary); filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1)); transition: transform 0.2s ease-in-out;" class="hover:scale-105 cursor-pointer"></fsw-sign>`
+              <fsw-sign
+                sign={token}
+                style={{
+                  direction: 'ltr' as const,
+                  display: 'block',
+                  userSelect: 'none',
+                  WebkitUserSelect: 'none',
+                  color: 'var(--text-primary)',
+                  fill: 'var(--text-primary)',
+                  filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))',
+                  transition: 'transform 0.2s ease-in-out',
+                  cursor: 'pointer',
                 }}
               />
               
@@ -198,7 +216,8 @@ const SignWritingDisplay: React.FC<SignWritingDisplayProps> = ({ fswTokens, dire
                 <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-secondary-900"></div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -218,4 +237,4 @@ const SignWritingDisplay: React.FC<SignWritingDisplayProps> = ({ fswTokens, dire
   );
 };
 
-export default SignWritingDisplay;
+export default React.memo(SignWritingDisplay);

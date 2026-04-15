@@ -124,7 +124,10 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
           }
         } catch (err) {
           if (signal.aborted) return;
-          setErrorField('simplify', 'Simplification failed, using original text');
+          const detail = err instanceof Error ? err.message : String(err);
+          console.error('[simplify] failed:', err);
+          setErrorField('simplify', `Simplification failed: ${detail}`);
+          addToast(`Simplify failed: ${detail}`, 'error', 5000);
           hasError = true;
         } finally {
           setLoadingField('simplifying', false);
@@ -161,13 +164,19 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
             }
           } catch (err) {
             if (signal.aborted) return;
-            setErrorField('pose', 'Animation generation failed');
+            const detail = err instanceof Error ? err.message : String(err);
+            console.error('[pose] failed:', err);
+            setErrorField('pose', `Animation generation failed: ${detail}`);
+            addToast(`Animation failed: ${detail}`, 'error', 5000);
             hasError = true;
           }
         }
       } catch (err) {
         if (signal.aborted) return;
-        setErrorField('translate', 'SignWriting translation failed');
+        const detail = err instanceof Error ? err.message : String(err);
+        console.error('[translate] failed:', err);
+        setErrorField('translate', `SignWriting translation failed: ${detail}`);
+        addToast(`Translate failed: ${detail}`, 'error', 5000);
         hasError = true;
       }
 
@@ -208,9 +217,11 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
       setLoadingField('transcribing', false);
       addToast('Transcription complete', 'success', 2000);
       await triggerTranslation(text);
-    } catch {
-      setErrorField('transcribe', 'Transcription failed. Please try again.');
-      addToast('Transcription failed', 'error');
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : String(err);
+      console.error('[transcribe] failed:', err);
+      setErrorField('transcribe', `Transcription failed: ${detail}`);
+      addToast(`Transcription failed: ${detail}`, 'error', 5000);
       setLoadingField('transcribing', false);
     }
   }, [triggerTranslation, inputLanguage, addToast, startTimer, endTimer, setLoadingField, setErrorField]);
@@ -272,6 +283,7 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useTranslation() {
   const ctx = useContext(TranslationContext);
   if (!ctx) throw new Error('useTranslation must be used within TranslationProvider');

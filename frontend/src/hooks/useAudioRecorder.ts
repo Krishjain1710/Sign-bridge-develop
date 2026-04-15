@@ -29,14 +29,20 @@ export function useAudioRecorder() {
   }
 
   async function stopRecording(): Promise<Blob> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const recorder = mediaRecorderRef.current;
-      if (!recorder) return;
+      if (!recorder) {
+        setRecording(false);
+        reject(new Error('Recorder not initialized'));
+        return;
+      }
 
       recorder.onstop = () => {
         const audioBlob = new Blob(chunksRef.current, {
-          type: "audio/webm" // ✅ IMPORTANT
+          type: "audio/webm"
         });
+        // Stop all tracks to release the microphone
+        recorder.stream.getTracks().forEach(t => t.stop());
         setRecording(false);
         resolve(audioBlob);
       };

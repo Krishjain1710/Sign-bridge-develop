@@ -34,7 +34,17 @@ else
     
     # Activate Python environment and start backend
     cd backend
-    source py311_venv/bin/activate
+    # Detect OS so this works in Git Bash / MSYS on Windows as well as Unix
+    case "$(uname -s 2>/dev/null)" in
+        MINGW*|MSYS*|CYGWIN*) VENV_ACTIVATE="py311_venv/Scripts/activate" ;;
+        *)                     VENV_ACTIVATE="py311_venv/bin/activate" ;;
+    esac
+    if [ ! -f "$VENV_ACTIVATE" ]; then
+        echo "❌ Could not find venv activation script at $VENV_ACTIVATE"
+        echo "   Did you run ./setup_py311_env.sh?"
+        exit 1
+    fi
+    source "$VENV_ACTIVATE"
     
     # Start backend in background
     python run_backend.py &

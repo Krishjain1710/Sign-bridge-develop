@@ -20,7 +20,7 @@ const LearningMode: React.FC<LearningModeProps> = ({ signWriting, inputText, onC
   // Best-effort word mapping (signs don't always map 1:1 to words)
   const approximateWord = currentStep < words.length ? words[currentStep] : '';
 
-  const isValidFSW = /^[MBLRADSW0-9xc\-\+\.p]+$/i.test(currentToken);
+  const isValidFSW = /^[MBLRSW0-9a-fxp.+-]+$/i.test(currentToken);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>

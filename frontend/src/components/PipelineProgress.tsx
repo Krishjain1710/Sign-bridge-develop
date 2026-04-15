@@ -48,10 +48,14 @@ const STEPS: StepDef[] = [
 ];
 
 const PipelineProgress: React.FC = () => {
-  const { loading, errors, pipelineStatus } = useTranslation();
+  const { loading, errors, pipelineStatus, transcription, signWriting, poseFile } = useTranslation();
 
   const isAnyActive = Object.values(loading).some(Boolean);
   if (!isAnyActive && pipelineStatus === 'idle') return null;
+
+  const hasTranscription = transcription.trim().length > 0;
+  const hasSignWriting = signWriting.length > 0;
+  const hasPose = poseFile != null;
 
   const getStepState = (key: string): 'idle' | 'active' | 'done' | 'error' => {
     if (errors[key as keyof typeof errors]) return 'error';
@@ -59,20 +63,16 @@ const PipelineProgress: React.FC = () => {
     switch (key) {
       case 'transcribe':
         if (loading.transcribing) return 'active';
-        if (loading.translating || loading.generatingSigns || loading.generatingAnimation || pipelineStatus === 'complete') return 'done';
-        return 'idle';
+        return hasTranscription ? 'done' : 'idle';
       case 'translate':
         if (loading.translating) return 'active';
-        if (loading.generatingSigns || loading.generatingAnimation || pipelineStatus === 'complete') return 'done';
-        return 'idle';
+        return hasSignWriting ? 'done' : 'idle';
       case 'signs':
         if (loading.generatingSigns) return 'active';
-        if (loading.generatingAnimation || pipelineStatus === 'complete') return 'done';
-        return 'idle';
+        return hasSignWriting ? 'done' : 'idle';
       case 'animate':
         if (loading.generatingAnimation) return 'active';
-        if (pipelineStatus === 'complete' || pipelineStatus === 'partial-error') return 'done';
-        return 'idle';
+        return hasPose ? 'done' : 'idle';
       default:
         return 'idle';
     }

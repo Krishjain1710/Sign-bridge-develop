@@ -18,7 +18,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   };
 
   return (
-    <div className={`flex flex-col items-center justify-center space-y-4 ${className}`}>
+    <div className={`flex flex-col items-center justify-center space-y-4 ${className}`} role="status" aria-label={text || 'Loading'}>
       <div className={`loading-spinner ${sizeClasses[size]}`}></div>
       {text && (
         <div className="text-center">

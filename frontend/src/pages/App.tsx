@@ -73,7 +73,7 @@ function App() {
     },
   });
 
-  const copyToClipboard = useCallback(async (text: string, label: string) => {
+  const copyToClipboard = useCallback(async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
     } catch { /* ignore */ }
@@ -98,7 +98,7 @@ function App() {
               triggerTranslation={translation.triggerTranslation}
               simplifyText={translation.simplifyEnabled}
               isTranslating={translation.loading.translating}
-              onCopy={translation.inputText.trim() ? () => copyToClipboard(translation.inputText, 'Input') : undefined}
+              onCopy={translation.inputText.trim() ? () => copyToClipboard(translation.inputText) : undefined}
               onOpenPhraseBook={() => {}}
             />
           </ErrorBoundary>
@@ -107,7 +107,7 @@ function App() {
             <SignWritingSection
               signWriting={translation.signWriting}
               isGeneratingSigns={translation.loading.generatingSigns}
-              onCopyFSW={translation.signWriting.length > 0 ? () => copyToClipboard(translation.signWriting.join(' '), 'FSW') : undefined}
+              onCopyFSW={translation.signWriting.length > 0 ? () => copyToClipboard(translation.signWriting.join(' ')) : undefined}
               onToggleFavorite={translation.signWriting.length > 0 ? handleToggleFavorite : undefined}
               isFavorited={isFavorite(translation.inputText)}
               onOpenLearningMode={translation.signWriting.length > 0 ? () => {} : undefined}
@@ -123,7 +123,7 @@ function App() {
         </div>
         <TranscriptionDisplay
           transcription={translation.transcription}
-          onCopy={translation.transcription ? () => copyToClipboard(translation.transcription, 'Transcription') : undefined}
+          onCopy={translation.transcription ? () => copyToClipboard(translation.transcription) : undefined}
         />
         {showSimplifyModal && (
           <SimplifyChoiceModal

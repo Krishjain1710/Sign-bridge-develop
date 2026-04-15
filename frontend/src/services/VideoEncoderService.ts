@@ -3,13 +3,13 @@ import type { ArrayBufferTarget as Mp4ArrayBufferTarget, Muxer as Mp4Muxer } fro
 
 export function getMediaSourceClass(): typeof MediaSource | null {
   if ('ManagedMediaSource' in window) {
-    return window.ManagedMediaSource as any;
+    return window.ManagedMediaSource as unknown as typeof MediaSource;
   }
   if ('MediaSource' in window) {
     return MediaSource;
   }
   if ('WebKitMediaSource' in window) {
-    return window['WebKitMediaSource'] as any;
+    return window['WebKitMediaSource'] as unknown as typeof MediaSource;
   }
 
   console.warn('Neither ManagedMediaSource nor MediaSource are supported on this device');
@@ -46,7 +46,7 @@ export class VideoEncoderService {
 
   async init(): Promise<void> {
     await this.createWebMMuxer();
-    let playable = await this.isPlayable();
+    const playable = await this.isPlayable();
     if (!playable) {
       // If WebM is not playable or undetermined, fall back to MP4
       await this.createMP4Muxer();
@@ -177,7 +177,7 @@ export class VideoEncoderService {
     this.videoEncoder.close();
     delete this.videoEncoder;
 
-    let { buffer } = this.muxer.target; // Buffer contains final muxed file
+    const { buffer } = this.muxer.target; // Buffer contains final muxed file
     return new Blob([buffer], { type: `video/${this.container}` });
   }
 

@@ -13,6 +13,17 @@ const PoseViewer: React.FC<PoseViewerProps> = ({ poseFile, poseUrl, onAnimationC
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Sync fullscreen state with browser fullscreen API
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   useEffect(() => {
     // Dynamically import and define the pose-viewer web component
@@ -169,7 +180,7 @@ const PoseViewer: React.FC<PoseViewerProps> = ({ poseFile, poseUrl, onAnimationC
         <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1">
           <button
             onClick={() => {
-              const poseViewer = containerRef.current?.querySelector('pose-viewer') as any;
+              const poseViewer = containerRef.current?.querySelector('pose-viewer') as PoseViewerElement | null;
               if (poseViewer) {
                 if (isPlaying) {
                   poseViewer.pause();
@@ -180,6 +191,7 @@ const PoseViewer: React.FC<PoseViewerProps> = ({ poseFile, poseUrl, onAnimationC
             }}
             className="text-white hover:text-white/70 transition-colors"
             title={isPlaying ? 'Pause' : 'Play'}
+            aria-label={isPlaying ? 'Pause animation' : 'Play animation'}
           >
             {isPlaying ? (
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -191,10 +203,10 @@ const PoseViewer: React.FC<PoseViewerProps> = ({ poseFile, poseUrl, onAnimationC
               </svg>
             )}
           </button>
-          
+
           <button
             onClick={() => {
-              const poseViewer = containerRef.current?.querySelector('pose-viewer') as any;
+              const poseViewer = containerRef.current?.querySelector('pose-viewer') as PoseViewerElement | null;
               if (poseViewer) {
                 poseViewer.currentTime = 0;
                 poseViewer.play();
@@ -202,9 +214,57 @@ const PoseViewer: React.FC<PoseViewerProps> = ({ poseFile, poseUrl, onAnimationC
             }}
             className="text-white hover:text-white/70 transition-colors"
             title="Restart"
+            aria-label="Restart animation"
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+            </svg>
+          </button>
+
+          {/* Playback Speed */}
+          <div className="border-l border-white/20 pl-2 ml-1">
+            <button
+              onClick={() => {
+                const speeds = [0.5, 1, 1.5, 2];
+                const nextIndex = (speeds.indexOf(playbackSpeed) + 1) % speeds.length;
+                const newSpeed = speeds[nextIndex];
+                setPlaybackSpeed(newSpeed);
+                const poseViewer = containerRef.current?.querySelector('pose-viewer') as PoseViewerElement | null;
+                if (poseViewer) {
+                  poseViewer.playbackRate = newSpeed;
+                }
+              }}
+              className="text-white hover:text-white/70 transition-colors text-xs font-mono font-bold min-w-[2.5rem]"
+              title="Change playback speed"
+              aria-label={`Playback speed: ${playbackSpeed}x`}
+            >
+              {playbackSpeed}x
+            </button>
+          </div>
+
+          {/* Fullscreen */}
+          <button
+            onClick={() => {
+              const container = containerRef.current;
+              if (!container) return;
+              if (!isFullscreen) {
+                container.requestFullscreen?.();
+                setIsFullscreen(true);
+              } else {
+                document.exitFullscreen?.();
+                setIsFullscreen(false);
+              }
+            }}
+            className="text-white hover:text-white/70 transition-colors"
+            title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+            aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {isFullscreen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+              )}
             </svg>
           </button>
         </div>
@@ -222,4 +282,4 @@ const PoseViewer: React.FC<PoseViewerProps> = ({ poseFile, poseUrl, onAnimationC
   );
 };
 
-export default PoseViewer;
+export default React.memo(PoseViewer);

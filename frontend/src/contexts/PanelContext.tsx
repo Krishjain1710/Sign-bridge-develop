@@ -41,6 +41,7 @@ export const PanelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function usePanel() {
   const ctx = useContext(PanelContext);
   if (!ctx) throw new Error('usePanel must be used within PanelProvider');

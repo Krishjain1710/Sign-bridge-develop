@@ -1,8 +1,13 @@
 // SignWritingService.ts
 // Handles loading fonts and normalizing FSW strings for drawing on a static canvas.
 
+interface FontModule {
+  cssAppend: (path: string) => void;
+  cssLoaded: (cb: () => void) => void;
+}
+
 const SignWritingService = {
-  fontModulePromise: null as Promise<any> | null,
+  fontModulePromise: null as Promise<FontModule> | null,
   fontsLoaded: false,
 
   getFontModule() {
