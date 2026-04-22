@@ -241,10 +241,14 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
     if (stage === 'translate' || stage === 'simplify') {
       triggerTranslation(lastTextRef.current);
     } else if (stage === 'pose' && signWriting.length > 0) {
+      cancelTranslation();
+      const controller = new AbortController();
+      abortRef.current = controller;
       (async () => {
         setLoadingField('generatingAnimation', true);
         try {
-          const poseRes = await ApiService.generatePose(signWriting.join(' '));
+          const poseRes = await ApiService.generatePose(signWriting.join(' '), controller.signal);
+          if (controller.signal.aborted) return;
           const { pose_data, data_format } = poseRes;
           if (data_format === 'binary_base64' && pose_data) {
             const binary = atob(pose_data);
@@ -256,13 +260,14 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
           }
           setPipelineStatus('complete');
         } catch {
+          if (controller.signal.aborted) return;
           setErrorField('pose', 'Animation generation failed');
         } finally {
           setLoadingField('generatingAnimation', false);
         }
       })();
     }
-  }, [signWriting, triggerTranslation, setLoadingField, setErrorField]);
+  }, [signWriting, triggerTranslation, cancelTranslation, setLoadingField, setErrorField]);
 
   return (
     <TranslationContext.Provider

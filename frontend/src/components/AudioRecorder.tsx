@@ -14,7 +14,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
   setRecordingSource,
   onClose,
 }) => {
-  const { startRecording, stopRecording, recording } = useAudioRecorder();
+  const { startRecording, stopRecording, recording, stream: recorderStream } = useAudioRecorder();
   const [duration, setDuration] = useState(0);
   const [audioLevel, setAudioLevel] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -54,10 +54,8 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
       cancelAnimationFrame(animFrameRef.current);
       animFrameRef.current = null;
     }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(t => t.stop());
-      streamRef.current = null;
-    }
+    // Don't stop stream tracks here - the useAudioRecorder hook owns the stream
+    streamRef.current = null;
     if (audioCtxRef.current) {
       audioCtxRef.current.close().catch(() => {});
       audioCtxRef.current = null;
@@ -70,18 +68,13 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
       await startRecording();
       if (!mountedRef.current) return;
 
-      // Set up audio level visualization using a separate stream
-      // (the recording stream is owned by the hook)
+      // Set up audio level visualization reusing the recording stream
       try {
-        const vizStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        if (!mountedRef.current) {
-          vizStream.getTracks().forEach(t => t.stop());
-          return;
-        }
-        streamRef.current = vizStream;
+        if (!recorderStream || !mountedRef.current) return;
+        streamRef.current = recorderStream;
         const audioContext = new AudioContext();
         audioCtxRef.current = audioContext;
-        const source = audioContext.createMediaStreamSource(vizStream);
+        const source = audioContext.createMediaStreamSource(recorderStream);
         const analyser = audioContext.createAnalyser();
         analyser.fftSize = 256;
         source.connect(analyser);

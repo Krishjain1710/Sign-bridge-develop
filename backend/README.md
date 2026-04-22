@@ -30,9 +30,9 @@ This backend provides the core API services for the SignBridge application, incl
 
 ### POST /generate_pose
 
-- Accepts: JSON with text and language parameters
+- Accepts: JSON with SignWriting notation string (`signwriting`)
 - Returns: JSON with base64-encoded pose data
-- Uses: External pose generation API
+- Uses: Local pose generation pipeline (`pose/local_pose_generator.py`)
 
 ## Environment Configuration
 
@@ -49,9 +49,6 @@ DEBUG=true
 # API Keys and External Services
 GROQ_API_KEY=your_groq_api_key_here
 GROQ_API_URL=https://api.groq.com/openai/v1/chat/completions
-
-# Pose Generation API
-POSE_API_URL=https://us-central1-sign-mt.cloudfunctions.net/spoken_text_to_signed_pose
 
 # Whisper Model Configuration
 WHISPER_MODEL=base
@@ -142,6 +139,58 @@ Test scripts are located in the `tests/` directory:
 - `test_translate_signwriting.py`
 
 Run tests using the appropriate Python environment. Test scripts will use the `BACKEND_URL` environment variable or default to `http://127.0.0.1:8000`.
+
+## Validation Workflow (Signs + Animation)
+
+Use the validation harness to check translation and animation quality end-to-end.
+
+### 1) Prepare a dataset
+
+Start from:
+
+- `tests/validation/golden_dataset.sample.json`
+
+Create your own `golden_dataset.json` with items like:
+
+```json
+[
+  {
+    "id": "sample_1",
+    "text": "Hello",
+    "notes": "Basic sanity check",
+    "expected_fsw_exact": "OPTIONAL_EXACT_EXPECTED_STRING",
+    "expected_fsw_contains": ["OPTIONAL", "SUBSTRINGS"]
+  }
+]
+```
+
+### 2) Run automatic validation
+
+From repo root:
+
+```bash
+python scripts/validate_sign_pipeline.py \
+  --backend-url http://127.0.0.1:8000 \
+  --dataset tests/validation/golden_dataset.sample.json \
+  --output-dir tests/validation/output
+```
+
+This generates:
+
+- machine report JSON: pass/fail + failed checks for each sample
+- human review CSV: scoring sheet for signers/reviewers
+
+### 3) Do human review
+
+Open generated `human_review_sheet_*.csv` and score each sample:
+
+- `meaning_accuracy_0_2`
+- `signwriting_validity_0_2`
+- `motion_clarity_0_2`
+- `motion_naturalness_0_2`
+- `overall_understandability_0_2`
+
+Recommended pass threshold: total score >= 7/10 per sample.
 
 ## License
 

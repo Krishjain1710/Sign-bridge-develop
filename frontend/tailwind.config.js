@@ -30,5 +30,5 @@ export default {
     },
   },
   plugins: [],
-  darkMode: 'media', // or 'class' for manual dark mode toggle
+  darkMode: 'class', // 'class' enables manual dark mode toggle
 } 

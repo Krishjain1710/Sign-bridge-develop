@@ -1,0 +1,104 @@
+{
+  "generated_at_utc": "20260422T164514Z",
+  "backend_url": "http://127.0.0.1:8000",
+  "dataset_path": "tests\\validation\\golden_dataset.sample.json",
+  "summary": {
+    "total_samples": 5,
+    "translate_pass": 5,
+    "pose_pass": 5,
+    "full_pipeline_pass": 5,
+    "full_pipeline_pass_rate": 100.0
+  },
+  "results": [
+    {
+      "sample_id": "greeting_hello",
+      "text": "Hello",
+      "translate_ok": true,
+      "pose_ok": true,
+      "generated_fsw": "M500x500S14c20489x524S27106515x543S30a00482x482S33e00482x482",
+      "token_count": 1,
+      "frame_count": 118,
+      "joints_per_frame": 17,
+      "movements": [
+        "HOLD",
+        "SHAKE",
+        "TAP",
+        "TAP"
+      ],
+      "failed_checks": [],
+      "error": ""
+    },
+    {
+      "sample_id": "intro_name",
+      "text": "My name is John.",
+      "translate_ok": true,
+      "pose_ok": true,
+      "generated_fsw": "M500x500S15a01491x487S20500487x503 M500x500S11541498x491S11549479x498S20600489x476 M500x500S19220492x478S2a20c476x462S17620492x502S11502477x523S11920486x543 M500x500S38800464x496",
+      "token_count": 4,
+      "frame_count": 224,
+      "joints_per_frame": 17,
+      "movements": [
+        "HOLD",
+        "UP",
+        "HOLD",
+        "HOLD",
+        "UP",
+        "HOLD",
+        "HOLD",
+        "HOLD",
+        "HOLD"
+      ],
+      "failed_checks": [],
+      "error": ""
+    },
+    {
+      "sample_id": "question_help",
+      "text": "Can you help me please?",
+      "translate_ok": true,
+      "pose_ok": true,
+      "generated_fsw": "M500x500S15a37490x497S1f702488x477S20600490x512",
+      "token_count": 1,
+      "frame_count": 89,
+      "joints_per_frame": 17,
+      "movements": [
+        "HOLD",
+        "HOLD",
+        "UP"
+      ],
+      "failed_checks": [],
+      "error": ""
+    },
+    {
+      "sample_id": "command_wait",
+      "text": "Please wait here.",
+      "translate_ok": true,
+      "pose_ok": true,
+      "generated_fsw": "M500x500S15a02487x486S21100495x502",
+      "token_count": 1,
+      "frame_count": 60,
+      "joints_per_frame": 17,
+      "movements": [
+        "HOLD",
+        "UP"
+      ],
+      "failed_checks": [],
+      "error": ""
+    },
+    {
+      "sample_id": "time_statement",
+      "text": "I will come back tomorrow morning.",
+      "translate_ok": true,
+      "pose_ok": true,
+      "generated_fsw": "M500x500S2ff00482x483S1dc20510x484S2b705512x454S1dc00497x489",
+      "token_count": 1,
+      "frame_count": 60,
+      "joints_per_frame": 17,
+      "movements": [
+        "HOLD",
+        "HOLD"
+      ],
+      "failed_checks": [],
+      "error": ""
+    }
+  ]
+}

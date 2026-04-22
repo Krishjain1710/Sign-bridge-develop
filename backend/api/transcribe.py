@@ -1,17 +1,18 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, Form
 from typing import Optional
+import asyncio
 import whisper
 import tempfile
 import os
 import logging
 
-from config import MAX_AUDIO_SIZE_MB
+from config import MAX_AUDIO_SIZE_MB, config
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
 # Load model ONCE at module level
-model = whisper.load_model("base", device="cpu")
+model = whisper.load_model(config.WHISPER_MODEL, device=config.WHISPER_DEVICE)
 
 
 @router.post("/transcribe")
@@ -72,7 +73,7 @@ async def transcribe(
         else:
             transcribe_opts["language"] = None
 
-        result = model.transcribe(temp_path, **transcribe_opts)
+        result = await asyncio.to_thread(model.transcribe, temp_path, **transcribe_opts)
         detected_language = result.get("language", "en")
 
         return {

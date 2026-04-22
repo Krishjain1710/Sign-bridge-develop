@@ -1,6 +1,9 @@
 import axios from 'axios';
 import { API_ENDPOINTS } from '../config';
 
+// Default timeout of 60 seconds to prevent indefinite hangs
+axios.defaults.timeout = 60000;
+
 export interface HealthResponse {
   status: 'ready' | 'loading';
   models: { whisper: boolean; signwriting: boolean };

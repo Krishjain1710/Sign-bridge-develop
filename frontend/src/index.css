@@ -76,17 +76,22 @@
 
 /* Dark Mode */
 [data-theme="dark"] {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-tertiary: #334155;
-  --bg-card: #1e293b;
+  --bg-primary: #0c1222;
+  --bg-secondary: #141d30;
+  --bg-tertiary: #1c2840;
+  --bg-card: #161f33;
 
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-primary: #eef2f7;
+  --text-secondary: #a0b1c5;
+  --text-muted: #6b7f99;
 
-  --border-primary: #334155;
-  --border-secondary: #1e293b;
+  --border-primary: #253248;
+  --border-secondary: #1c2840;
+
+  /* Stage colors brighter in dark mode */
+  --stage-input: #14b8a6;
+  --stage-signwriting: #10b981;
+  --stage-animation: #fbbf24;
 }
 
 /* High Contrast */
@@ -125,11 +130,20 @@ body {
   border-radius: 1rem;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: box-shadow 0.2s, transform 0.2s;
+  transition: box-shadow 0.3s, transform 0.3s, border-color 0.3s;
 }
 
 .card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+[data-theme="dark"] .card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .card-input {
@@ -142,6 +156,21 @@ body {
 
 .card-animation {
   border-left: 3px solid var(--stage-animation);
+}
+
+[data-theme="dark"] .card-input {
+  border-left: 3px solid var(--stage-input);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(20, 184, 166, 0.08);
+}
+
+[data-theme="dark"] .card-signwriting {
+  border-left: 3px solid var(--stage-signwriting);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(16, 185, 129, 0.08);
+}
+
+[data-theme="dark"] .card-animation {
+  border-left: 3px solid var(--stage-animation);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(251, 191, 36, 0.08);
 }
 
 /* =============================================
@@ -221,15 +250,92 @@ body {
 .border-theme-primary { border-color: var(--border-primary); }
 
 /* =============================================
+   Dark Mode Component Overrides
+   ============================================= */
+
+/* Header & toolbar depth in dark mode */
+[data-theme="dark"] header {
+  background: rgba(12, 18, 34, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Icon backgrounds adapt to dark mode */
+[data-theme="dark"] .bg-primary-100 {
+  background: rgba(20, 184, 166, 0.15);
+}
+[data-theme="dark"] .bg-purple-100 {
+  background: rgba(147, 51, 234, 0.15);
+}
+[data-theme="dark"] .bg-indigo-100 {
+  background: rgba(99, 102, 241, 0.15);
+}
+[data-theme="dark"] .bg-emerald-50 {
+  background: rgba(16, 185, 129, 0.1);
+}
+[data-theme="dark"] .bg-amber-50 {
+  background: rgba(251, 191, 36, 0.1);
+}
+
+/* Textarea / input styling in dark mode */
+[data-theme="dark"] textarea,
+[data-theme="dark"] select,
+[data-theme="dark"] input[type="text"] {
+  background: rgba(12, 18, 34, 0.6);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] textarea:focus,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] input[type="text"]:focus {
+  border-color: #14b8a6;
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+}
+
+[data-theme="dark"] textarea::placeholder {
+  color: #4a5d78;
+}
+
+/* Pipeline progress bar contrast */
+[data-theme="dark"] .bg-teal-500 {
+  background-color: #14b8a6;
+}
+
+/* Toolbar buttons in dark mode */
+[data-theme="dark"] .bg-theme-secondary {
+  background: var(--bg-secondary);
+}
+
+[data-theme="dark"] .hover\:bg-theme-tertiary:hover {
+  background: var(--bg-tertiary);
+}
+
+/* Scrollbar styling for dark mode */
+[data-theme="dark"] ::-webkit-scrollbar {
+  width: 6px;
+}
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* =============================================
    Gradient Accent
    ============================================= */
 
 .gradient-teal {
-  background: linear-gradient(135deg, #0d9488, #059669);
+  background: linear-gradient(135deg, #14b8a6, #059669);
 }
 
 .gradient-text-teal {
-  background: linear-gradient(135deg, #0d9488, #059669);
+  background: linear-gradient(135deg, #2dd4bf, #10b981);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

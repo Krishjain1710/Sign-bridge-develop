@@ -1,3 +1,5 @@
+import asyncio
+import threading
 import logging
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -10,13 +12,16 @@ logger = logging.getLogger(__name__)
 
 _translator = None
 _tokenizer_path = None
+_translator_lock = threading.Lock()
 
 
 def get_translator():
     global _translator, _tokenizer_path
     if _translator is None:
-        model_path = "sign/sockeye-text-to-factored-signwriting"
-        _translator, _tokenizer_path = load_sockeye_translator(model_path)
+        with _translator_lock:
+            if _translator is None:
+                model_path = "sign/sockeye-text-to-factored-signwriting"
+                _translator, _tokenizer_path = load_sockeye_translator(model_path)
     return _translator
 
 
@@ -52,7 +57,7 @@ async def translate_signwriting(request: TextRequest):
         translator = get_translator()
         tokenized_text = tokenize_spoken_text(text)
         model_input = f"$en $ase {tokenized_text}"
-        outputs = translate(translator, [model_input])
+        outputs = await asyncio.to_thread(translate, translator, [model_input])
 
         if not outputs or len(outputs) == 0:
             raise ValueError("Translation produced no output")

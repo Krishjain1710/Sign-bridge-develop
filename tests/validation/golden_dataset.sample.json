@@ -1,0 +1,27 @@
+[
+  {
+    "id": "greeting_hello",
+    "text": "Hello",
+    "notes": "Basic greeting sanity check"
+  },
+  {
+    "id": "intro_name",
+    "text": "My name is John.",
+    "notes": "Simple sentence used in existing translate tests"
+  },
+  {
+    "id": "question_help",
+    "text": "Can you help me please?",
+    "notes": "Question-style sentence and politeness marker"
+  },
+  {
+    "id": "command_wait",
+    "text": "Please wait here.",
+    "notes": "Short imperative sentence"
+  },
+  {
+    "id": "time_statement",
+    "text": "I will come back tomorrow morning.",
+    "notes": "Future tense and time phrase"
+  }
+]

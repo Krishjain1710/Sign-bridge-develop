@@ -41,7 +41,7 @@ const ToastContainer: React.FC = () => {
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className={`flex items-start gap-3 p-4 rounded-xl shadow-lg border-l-4 ${bgMap[toast.type]} animate-slideIn`}
+          className={`flex items-start gap-3 p-4 rounded-xl shadow-lg border-l-4 ${bgMap[toast.type]} animate-slide-in`}
           style={{ background: 'var(--bg-card)' }}
           role="alert"
         >

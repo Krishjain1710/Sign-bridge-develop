@@ -1,3 +1,4 @@
+import asyncio
 import requests
 import logging
 from fastapi import APIRouter, HTTPException
@@ -58,7 +59,8 @@ async def simplify_text(request: TextRequest):
     }
 
     try:
-        response = requests.post(
+        response = await asyncio.to_thread(
+            requests.post,
             config.GROQ_API_URL,
             json=payload,
             headers=headers,
