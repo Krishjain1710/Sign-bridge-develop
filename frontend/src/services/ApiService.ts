@@ -75,10 +75,10 @@ const ApiService = {
     return response.data;
   },
 
-  async generatePose(signwriting: string, signal?: AbortSignal): Promise<GeneratePoseResponse> {
+  async generatePose(text: string, signwriting: string, signal?: AbortSignal): Promise<GeneratePoseResponse> {
     const response = await axios.post<GeneratePoseResponse>(
       API_ENDPOINTS.GENERATE_POSE,
-      { signwriting },
+      { text, signwriting },
       { signal },
     );
     return response.data;

@@ -65,6 +65,11 @@ class Config:
     TRANSLATE_TIMEOUT: int = int(os.getenv("TRANSLATE_TIMEOUT", 15))
     POSE_TIMEOUT: int = int(os.getenv("POSE_TIMEOUT", 10))
 
+    POSE_API_URL: str = os.getenv(
+        "POSE_API_URL",
+        "https://sign.mt/api/spoken-to-signed"
+    )
+
     # ======================
     # Validation
     # ======================

@@ -1,6 +1,7 @@
 import asyncio
 import threading
 import logging
+from functools import lru_cache
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from signwriting_translation.bin import load_sockeye_translator, tokenize_spoken_text, translate
@@ -29,6 +30,15 @@ class TextRequest(BaseModel):
     text: str
 
 
+@lru_cache(maxsize=1024)
+def _get_cached_translation(text: str):
+    translator = get_translator()
+    tokenized_text = tokenize_spoken_text(text)
+    model_input = f"$en $ase {tokenized_text}"
+    # translate is a sync function in signwriting_translation.bin
+    return translate(translator, [model_input])
+
+
 @router.post("/translate_signwriting")
 async def translate_signwriting(request: TextRequest):
     text = request.text.strip()
@@ -54,10 +64,8 @@ async def translate_signwriting(request: TextRequest):
         )
 
     try:
-        translator = get_translator()
-        tokenized_text = tokenize_spoken_text(text)
-        model_input = f"$en $ase {tokenized_text}"
-        outputs = await asyncio.to_thread(translate, translator, [model_input])
+        # Use a thread because sockeye translation is CPU intensive and sync
+        outputs = await asyncio.to_thread(_get_cached_translation, text)
 
         if not outputs or len(outputs) == 0:
             raise ValueError("Translation produced no output")

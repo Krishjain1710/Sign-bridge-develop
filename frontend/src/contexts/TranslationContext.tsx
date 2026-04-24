@@ -151,7 +151,7 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
         if (fswTokens.length > 0) {
           try {
             startTimer('pose');
-            const poseRes = await ApiService.generatePose(fswTokens.join(' '), signal);
+            const poseRes = await ApiService.generatePose(textToTranslate, fswTokens.join(' '), signal);
             endTimer('pose');
             const { pose_data, data_format } = poseRes;
             if (data_format === 'binary_base64' && pose_data) {
@@ -247,7 +247,7 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
       (async () => {
         setLoadingField('generatingAnimation', true);
         try {
-          const poseRes = await ApiService.generatePose(signWriting.join(' '), controller.signal);
+          const poseRes = await ApiService.generatePose(lastTextRef.current, signWriting.join(' '), controller.signal);
           if (controller.signal.aborted) return;
           const { pose_data, data_format } = poseRes;
           if (data_format === 'binary_base64' && pose_data) {
