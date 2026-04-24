@@ -23,7 +23,7 @@ import '../index.css';
 
 function App() {
   const translation = useTranslation();
-  const { activePanel, closePanel } = usePanel();
+  const { activePanel, closePanel, openPanel } = usePanel();
   const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites();
   const { settings } = useSettings();
   const { isComplete: onboardingComplete, complete: completeOnboarding } = useOnboarding();
@@ -86,7 +86,7 @@ function App() {
       <PipelineProgress />
 
       <main id="main-content" className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8" style={{ height: 'calc(100vh - 160px)' }}>
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-stretch">
           <ErrorBoundary fallbackMessage="Input section encountered an error">
             <InputSection
               inputText={translation.inputText}
@@ -99,7 +99,7 @@ function App() {
               simplifyText={translation.simplifyEnabled}
               isTranslating={translation.loading.translating}
               onCopy={translation.inputText.trim() ? () => copyToClipboard(translation.inputText) : undefined}
-              onOpenPhraseBook={() => {}}
+              onOpenPhraseBook={() => openPanel('phraseBook')}
             />
           </ErrorBoundary>
 
@@ -121,10 +121,12 @@ function App() {
             />
           </ErrorBoundary>
         </div>
-        <TranscriptionDisplay
-          transcription={translation.transcription}
-          onCopy={translation.transcription ? () => copyToClipboard(translation.transcription) : undefined}
-        />
+        <div className="mt-6 relative z-10">
+          <TranscriptionDisplay
+            transcription={translation.transcription}
+            onCopy={translation.transcription ? () => copyToClipboard(translation.transcription) : undefined}
+          />
+        </div>
         {showSimplifyModal && (
           <SimplifyChoiceModal
             original={pendingOriginalText}

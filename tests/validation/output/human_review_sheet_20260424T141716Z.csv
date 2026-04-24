@@ -1,0 +1,6 @@
+sample_id,text,generated_fsw,movements,meaning_accuracy_0_2,signwriting_validity_0_2,motion_clarity_0_2,motion_naturalness_0_2,overall_understandability_0_2,reviewer_notes
+greeting_hello,Hello,M500x500S14c20489x524S27106515x543S30a00482x482S33e00482x482,HOLD SHAKE TAP TAP,,,,,,
+intro_name,My name is John.,M500x500S15a01491x487S20500487x503 M500x500S11541498x491S11549479x498S20600489x476 M500x500S19220492x478S2a20c476x462S17620492x502S11502477x523S11920486x543 M500x500S38800464x496,HOLD UP HOLD HOLD UP HOLD HOLD HOLD HOLD,,,,,,
+question_help,Can you help me please?,M500x500S15a37490x497S1f702488x477S20600490x512,HOLD HOLD UP,,,,,,
+command_wait,Please wait here.,M500x500S15a02487x486S21100495x502,HOLD UP,,,,,,
+time_statement,I will come back tomorrow morning.,M500x500S2ff00482x483S1dc20510x484S2b705512x454S1dc00497x489,HOLD HOLD,,,,,,
