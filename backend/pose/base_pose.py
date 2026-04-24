@@ -79,37 +79,41 @@ BASE_POSE = np.array([
     [0.57, 0.96],   # 32: RIGHT_FOOT_INDEX
 ], dtype=np.float32)
 
-# Point connections (limbs) - Standardized for a clean, proportional face
+# Detailed limb connections matching MediaPipe Holistic / sign.mt style
 LIMBS = [
-    # FACE OVAL (Outer boundary loop only - no internal features)
-    (7, 0), (0, 8), (8, 10), (10, 9), (9, 7),
+    # Face (More detail for a "human" look)
+    (0, 1), (1, 2), (2, 3), (3, 7),
+    (0, 4), (4, 5), (5, 6), (6, 8),
+    (9, 10), # Mouth
     
-    # BODY
-    (11, 12),                                 # Shoulders
-    (11, 13), (13, 15),                       # Left arm
-    (12, 14), (14, 16),                       # Right arm
-    (15, 17), (15, 19), (15, 21),             # Left hand
-    (16, 18), (16, 20), (16, 22),             # Right hand
-    (11, 23), (12, 24), (23, 24),             # Torso
-    (23, 25), (25, 27), (27, 29), (29, 31),   # Left leg
-    (24, 26), (26, 28), (28, 30), (30, 32),   # Right leg
+    # Body
+    (11, 12), (11, 13), (13, 15),
+    (12, 14), (14, 16),
+    (11, 23), (12, 24), (23, 24),
+    (23, 25), (25, 27),
+    (24, 26), (26, 28),
+    
+    # Hands (Full finger connections)
+    (15, 17), (17, 19), (19, 21), # Left
+    (16, 18), (18, 20), (20, 22), # Right
 ]
 
-# High-contrast color palette (R, G, B)
-RED_ORANGE = (255, 69, 58)
-BLUE = (10, 132, 255)
+# High-contrast color palette (R, G, B) - Using Blue/Red/White standard
+WHITE = (255, 255, 255)
+BLUE = (0, 0, 255)
+RED = (255, 0, 0)
 
 COLORS = []
 for limb in LIMBS:
     p1, p2 = limb
-    # Right side limbs use Blue
-    right_indices = [4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32]
-    
-    if p1 in right_indices and p2 in right_indices:
+    # Right side uses Blue, Left uses Red, Face uses White
+    right_indices = [4, 5, 6, 8, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32]
+    if p1 < 11 and p2 < 11:
+        COLORS.append(WHITE)
+    elif p1 in right_indices or p2 in right_indices:
         COLORS.append(BLUE)
     else:
-        # Left side and Face components use Red/Orange
-        COLORS.append(RED_ORANGE)
+        COLORS.append(RED)
 
 RIGHT_ARM = [12, 14, 16, 18, 20, 22]
 LEFT_ARM = [11, 13, 15, 17, 19, 21]

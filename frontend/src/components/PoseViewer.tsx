@@ -165,6 +165,7 @@ const PoseViewer: React.FC<PoseViewerProps> = ({ poseFile, poseUrl, onAnimationC
           <pose-viewer
             src={url}
             autoplay
+            loop
             aspect-ratio="1"
             padding="0.1"
             thickness="2"

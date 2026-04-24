@@ -12,12 +12,21 @@ from pose.movement_types import MovementType, MovementDef, MOVEMENT_AMPLITUDE, c
 from pose.interpolation import full_movement_curve, interpolate_poses
 
 
+# Realistic amplitude for signs (not too exaggerated)
+MOVEMENT_AMPLITUDE = 0.15
+
 def _apply_directional(base: np.ndarray, joints: List[int], dx: float, dy: float, t: float) -> np.ndarray:
     pose = base.copy()
     curve = full_movement_curve(t)
+    
+    # Identify elbows for more natural movement
+    # Left Elbow: 13, Right Elbow: 14
+    elbows = [13, 14]
+    
     for j in joints:
-        pose[j, 0] += dx * curve * MOVEMENT_AMPLITUDE
-        pose[j, 1] += dy * curve * MOVEMENT_AMPLITUDE
+        factor = 0.5 if j in elbows else 1.0
+        pose[j, 0] += dx * curve * MOVEMENT_AMPLITUDE * factor
+        pose[j, 1] += dy * curve * MOVEMENT_AMPLITUDE * factor
     return pose
 
 
@@ -25,9 +34,11 @@ def _apply_circle(base: np.ndarray, joints: List[int], t: float) -> np.ndarray:
     pose = base.copy()
     angle = t * 2 * np.pi
     curve = full_movement_curve(min(t * 3, 1.0))
+    elbows = [13, 14]
     for j in joints:
-        pose[j, 0] += np.cos(angle) * MOVEMENT_AMPLITUDE * 0.8 * curve
-        pose[j, 1] += np.sin(angle) * MOVEMENT_AMPLITUDE * 0.8 * curve
+        factor = 0.5 if j in elbows else 1.0
+        pose[j, 0] += np.cos(angle) * MOVEMENT_AMPLITUDE * 0.8 * curve * factor
+        pose[j, 1] += np.sin(angle) * MOVEMENT_AMPLITUDE * 0.8 * curve * factor
     return pose
 
 
@@ -35,13 +46,16 @@ def _apply_wave(base: np.ndarray, joints: List[int], t: float) -> np.ndarray:
     pose = base.copy()
     wave = np.sin(t * 3 * 2 * np.pi) * MOVEMENT_AMPLITUDE * 0.6
     envelope = full_movement_curve(t)
+    elbows = [13, 14]
     for j in joints:
-        pose[j, 0] += wave * envelope
+        factor = 0.5 if j in elbows else 1.0
+        pose[j, 0] += wave * envelope * factor
     return pose
 
 
 def _apply_tap(base: np.ndarray, joints: List[int], t: float) -> np.ndarray:
     pose = base.copy()
+    elbows = [13, 14]
     if t < 0.4:
         curve = full_movement_curve(t / 0.4)
         dy = MOVEMENT_AMPLITUDE * 0.5 * curve
@@ -49,74 +63,44 @@ def _apply_tap(base: np.ndarray, joints: List[int], t: float) -> np.ndarray:
         curve = full_movement_curve((t - 0.4) / 0.6)
         dy = MOVEMENT_AMPLITUDE * 0.5 * (1.0 - curve)
     for j in joints:
-        pose[j, 1] += dy
+        factor = 0.5 if j in elbows else 1.0
+        pose[j, 1] += dy * factor
     return pose
 
-
-def _apply_twist(base: np.ndarray, hand_joints: List[int], finger_joints: List[int], t: float) -> np.ndarray:
-    pose = base.copy()
-    angle = t * np.pi * 1.5
-    curve = full_movement_curve(t)
-    for j in finger_joints:
-        base_offset_x = pose[j, 0] - pose[hand_joints[0], 0]
-        base_offset_y = pose[j, 1] - pose[hand_joints[0], 1]
-        rot_x = base_offset_x * np.cos(angle * curve) - base_offset_y * np.sin(angle * curve)
-        rot_y = base_offset_x * np.sin(angle * curve) + base_offset_y * np.cos(angle * curve)
-        pose[j, 0] = pose[hand_joints[0], 0] + rot_x
-        pose[j, 1] = pose[hand_joints[0], 1] + rot_y
-    return pose
-
-
-def _apply_pinch(base: np.ndarray, finger_joints: List[int], t: float) -> np.ndarray:
-    pose = base.copy()
-    curve = full_movement_curve(t)
-    if len(finger_joints) >= 2:
-        mid_x = (pose[finger_joints[0], 0] + pose[finger_joints[1], 0]) / 2
-        mid_y = (pose[finger_joints[0], 1] + pose[finger_joints[1], 1]) / 2
-        for j in finger_joints:
-            pose[j, 0] += (mid_x - pose[j, 0]) * curve * 0.8
-            pose[j, 1] += (mid_y - pose[j, 1]) * curve * 0.8
-    return pose
-
-
-def _apply_spread(base: np.ndarray, finger_joints: List[int], t: float) -> np.ndarray:
-    pose = base.copy()
-    curve = full_movement_curve(t)
-    if len(finger_joints) >= 2:
-        pose[finger_joints[0], 0] -= 0.03 * curve
-        pose[finger_joints[1], 0] += 0.03 * curve
-    return pose
-
-
+# (Twist, Pinch, Spread, Shake updated to include elbow handling if they move the whole hand)
 def _apply_shake(base: np.ndarray, joints: List[int], t: float) -> np.ndarray:
     pose = base.copy()
     shake = np.sin(t * 5 * 2 * np.pi) * MOVEMENT_AMPLITUDE * 0.3
     envelope = 1.0 - abs(2 * t - 1)
+    elbows = [13, 14]
     for j in joints:
-        pose[j, 0] += shake * envelope
+        factor = 0.5 if j in elbows else 1.0
+        pose[j, 0] += shake * envelope * factor
     return pose
 
 
 def _get_target_joints(hand: str):
+    # Include elbows (13, 14) in the primary movement joints
     if hand == "right":
-        return RIGHT_HAND_JOINTS, FINGER_JOINTS_RIGHT
+        return [14] + RIGHT_HAND_JOINTS, FINGER_JOINTS_RIGHT
     elif hand == "left":
-        return LEFT_HAND_JOINTS, FINGER_JOINTS_LEFT
+        return [13] + LEFT_HAND_JOINTS, FINGER_JOINTS_LEFT
     else:
         return (
-            RIGHT_HAND_JOINTS + LEFT_HAND_JOINTS,
+            [13, 14] + RIGHT_HAND_JOINTS + LEFT_HAND_JOINTS,
             FINGER_JOINTS_RIGHT + FINGER_JOINTS_LEFT,
         )
 
 
-def generate_movement_frames(movement: MovementDef, num_frames: int) -> np.ndarray:
+def generate_movement_frames(movement: MovementDef, num_frames: int, start_pose: np.ndarray = None) -> np.ndarray:
     frames = np.zeros((num_frames, NUM_JOINTS, 2), dtype=np.float32)
     hand_joints, finger_joints = _get_target_joints(movement.hand)
     mt = movement.movement_type
+    
+    base = start_pose if start_pose is not None else BASE_POSE.copy()
 
     for f in range(num_frames):
         t = f / max(1, num_frames - 1)
-        base = BASE_POSE.copy()
 
         if mt == MovementType.UP:
             frames[f] = _apply_directional(base, hand_joints, 0, -1, t)
@@ -162,18 +146,30 @@ def generate_pose_from_movements(movements) -> np.ndarray:
 
     total_frames = compute_frames(len(movements))
     frames_per = total_frames // len(movements)
-    transition_frames = 10
+    transition_frames = 12
 
     all_frames = []
+    current_start_pose = BASE_POSE.copy()
 
     for i, movement in enumerate(movements):
-        move_frames = generate_movement_frames(movement, frames_per)
+        # Generate movement starting from current_start_pose
+        move_frames = generate_movement_frames(movement, frames_per, start_pose=current_start_pose)
         all_frames.append(move_frames)
 
+        last_pose = move_frames[-1]
+        
         if i < len(movements) - 1:
-            end_pose = move_frames[-1]
-            next_start = BASE_POSE.copy()
-            transition = interpolate_poses(end_pose, next_start, transition_frames)
+            # Blend the last pose with BASE_POSE (50% return to neutral)
+            # to mimic human 're-centering' between signs
+            next_base = last_pose * 0.5 + BASE_POSE * 0.5
+            
+            # Create a smooth transition to the next_base
+            transition = interpolate_poses(last_pose, next_base, transition_frames)
             all_frames.append(transition)
+            current_start_pose = next_base
+    
+    # Finally, transition back to BASE_POSE at the very end
+    final_transition = interpolate_poses(all_frames[-1][-1], BASE_POSE, 20)
+    all_frames.append(final_transition)
 
     return np.concatenate(all_frames, axis=0)

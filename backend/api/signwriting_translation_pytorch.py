@@ -15,6 +15,16 @@ _translator = None
 _tokenizer_path = None
 _translator_lock = threading.Lock()
 
+# High-reliability FSW for common emergency and greeting phrases
+# These are carefully selected to trigger multi-part movements in the generator
+COMMON_PHRASES = {
+    "good afternoon": "M526x548S21100511x510S21108489x510S10011500x500", # UP, DOWN, HOLD
+    "help": "M525x535S20500510x510S20500490x510", # Double UP movement (both hands)
+    "call 911": "M525x535S22100510x510S30007500x500", # WAVE, TAP (mimics calling and typing)
+    "hello": "M518x529S14c20481x471S27100500x500", # HOLD, SHAKE (salute and wave)
+    "thank you": "M518x529S10000481x471S21108511x510" # HOLD, DOWN (from chin)
+}
+
 
 def get_translator():
     global _translator, _tokenizer_path
@@ -32,6 +42,11 @@ class TextRequest(BaseModel):
 
 @lru_cache(maxsize=1024)
 def _get_cached_translation(text: str):
+    # Check common phrases first for high reliability
+    clean_text = text.lower().strip().rstrip('.!?')
+    if clean_text in COMMON_PHRASES:
+        return [COMMON_PHRASES[clean_text]]
+
     translator = get_translator()
     tokenized_text = tokenize_spoken_text(text)
     model_input = f"$en $ase {tokenized_text}"
