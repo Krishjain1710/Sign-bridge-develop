@@ -6,6 +6,7 @@ export type PanelName =
   | 'settings'
   | 'phraseBook'
   | 'learningMode'
+  | 'learningHub'
   | 'onboarding'
   | 'accessibility'
   | null;

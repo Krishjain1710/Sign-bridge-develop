@@ -9,6 +9,7 @@ import FavoritesPanel from './FavoritesPanel';
 import SettingsPanel from './SettingsPanel';
 import PhraseBook from './PhraseBook';
 import LearningMode from './LearningMode';
+import LearningHub from './LearningHub';
 import AccessibilityHelp from './AccessibilityHelp';
 
 const PanelRenderer: React.FC = () => {
@@ -70,6 +71,9 @@ const PanelRenderer: React.FC = () => {
           onClose={closePanel}
         />
       );
+
+    case 'learningHub':
+      return <LearningHub />;
 
     case 'learningMode':
       if (signWriting.length === 0) return null;
