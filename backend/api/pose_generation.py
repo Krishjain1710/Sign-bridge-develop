@@ -11,6 +11,9 @@ from api.signwriting_translation_pytorch import _get_cached_translation
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+# High-quality Cloud Function API from the SignBridge repository
+POSE_API_URL = "https://us-central1-sign-mt.cloudfunctions.net/spoken_text_to_signed_pose"
+
 class PoseRequest(BaseModel):
     text: str = ""
     signwriting: str = ""
@@ -21,34 +24,32 @@ class PoseRequest(BaseModel):
 async def generate_pose(req: PoseRequest):
     """
     Generate pose data. 
-    1. Uses external high-quality API (sign.mt) if text is provided.
-    2. Falls back to local high-quality generator (with oval face) if text is missing or API fails.
+    Matches the SignBridge remote repository logic for high-quality animation.
     """
     
-    # Priority 1: External API for highest quality (smooth curves)
+    # Priority 1: External Cloud Function API for highest quality (smooth curves)
     text_to_pose = req.text.strip()
     if text_to_pose:
         try:
-            # Use 'spoken' and 'signed' per the user's explicit working snippet
             params = {
                 'text': text_to_pose,
                 'spoken': req.spoken_language,
                 'signed': req.signed_language
             }
-            logger.info(f"Attempting external pose generation for text: {text_to_pose[:50]}...")
+            logger.info(f"Attempting high-quality pose generation for: {text_to_pose[:50]}...")
             
-            response = requests.get(config.POSE_API_URL, params=params, timeout=10)
+            response = requests.get(POSE_API_URL, params=params, timeout=15)
             response.raise_for_status()
             
             return {
                 "pose_data": base64.b64encode(response.content).decode('utf-8'),
                 "data_format": "binary_base64",
-                "source": "external_api"
+                "source": "external_cloud_function"
             }
         except Exception as e:
-            logger.warning(f"External Pose API failed, falling back to local: {e}")
+            logger.warning(f"External Cloud Function failed: {e}")
 
-    # Priority 2: Local Generator (Uses the oval-face refined skeleton in base_pose.py)
+    # Priority 2: Local Generator fallback (Refined skeleton)
     fsw = req.signwriting.strip()
     
     # If FSW is missing but we have text, we translate it locally to ensure the fallback works!
