@@ -8,15 +8,29 @@ import uvicorn
 # can crash with 0xC0000142 when invoked with piped stdio (as whisper does),
 # so prepend the first ffmpeg.exe we can locate that runs directly.
 def _ensure_ffmpeg_on_path():
+    # Check if ffmpeg is already available on the system path
+    import shutil
+    if shutil.which("ffmpeg"):
+        return
+
     candidates = [
         os.environ.get("FFMPEG_DIR"),
+        # Windows candidates
         r"C:\Users\Krish\Downloads\ffmpeg-8.0.1-essentials_build\ffmpeg-8.0.1-essentials_build\bin",
         r"C:\ffmpeg\bin",
+        # Linux/WSL candidates
+        "/usr/bin",
+        "/usr/local/bin",
     ]
     for d in candidates:
-        if d and os.path.isfile(os.path.join(d, "ffmpeg.exe")):
-            os.environ["PATH"] = d + os.pathsep + os.environ.get("PATH", "")
-            return
+        if not d:
+            continue
+        # Check for both windows and linux variants
+        for cmd in ["ffmpeg", "ffmpeg.exe"]:
+            if os.path.isfile(os.path.join(d, cmd)):
+                os.environ["PATH"] = d + os.pathsep + os.environ.get("PATH", "")
+                logging.info(f"Added FFmpeg to path from: {d}")
+                return
 _ensure_ffmpeg_on_path()
 
 from api.signwriting_translation_pytorch import router as signwriting_translation_pytorch_router
